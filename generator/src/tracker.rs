@@ -57,24 +57,19 @@ impl FormatTracker {
         }
 
         if let Some(kind) = &ty.ty {
-            match kind {
-                TypeKind::Array { items } => self.analyze_type(items),
-                TypeKind::Object {
-                    properties,
-                    additional_properties,
-                } => {
-                    if let Some(properties) = properties {
-                        for ty in properties.values() {
-                            self.analyze_type(ty);
-                        }
-                    }
-
-                    if let IntOrTy::Ty(ty) = additional_properties {
-                        self.analyze_type(ty);
-                    }
-                }
-                _ => {}
+            if let TypeKind::Array { items } = kind {
+                self.analyze_type(items);
             }
+        }
+
+        if let Some(properties) = &ty.properties {
+            for inner in properties.values() {
+                self.analyze_type(inner);
+            }
+        }
+
+        if let Some(IntOrTy::Ty(inner)) = &ty.additional_properties {
+            self.analyze_type(inner);
         }
     }
 
